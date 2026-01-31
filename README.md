@@ -48,6 +48,24 @@ HY-SRF05
 - ![Product Link](https://www.pishop.ca/product/arduino-compatible-ultrasonic-distance-measuring-sensor-module/)
 - ![Datasheet (Short)](https://www.micros.com.pl/mediaserver/M_HY-SRF05_0003.pdf)
 
+### Servo Motor
+Tower Pro Micro Servo 9g (SG90)
+
+[Product Link](https://www.pishop.ca/product/sg90-180-degrees-9g-micro-servo-motor-tower-pro/)
+```
+    Weight : 9 g
+    Size : 22 x 11.5 x 27 mm
+    Operating Speed (4.8V no load): 0.12sec/60 degrees
+    Stall Torque (4.8V): 17.5oz/in (1.2 kg/cm)
+    Temperature Range: -30 to +60 Degree C
+    Dead Band Width: 7usec Operating Voltage:3.0-7.2 Volts
+```
+
+### Motor
+
+### Microcontroller
+Arduino Uno
+
 ### Components List
 - 1 medium sized breadboard
 - 4 9V batteries
