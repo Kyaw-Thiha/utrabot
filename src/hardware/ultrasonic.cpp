@@ -1,5 +1,68 @@
 #include "hardware/ultrasonic.h"
+
 namespace hardware {
-void ultrasonicInit() {}
-int ultrasonicReadCm() { return 0; }
+static UltrasonicCal g_ultra_cal;
+
+static void sortBuffer(int *buf, int n) {
+  for (int i = 1; i < n; ++i) {
+    int key = buf[i];
+    int j = i - 1;
+    while (j >= 0 && buf[j] > key) {
+      buf[j + 1] = buf[j];
+      --j;
+    }
+    buf[j + 1] = key;
+  }
+}
+
+static int medianOfBuffer(int *buf, int n) {
+  sortBuffer(buf, n);
+  return buf[n / 2];
+}
+
+void ultrasonicSetCal(const UltrasonicCal &cal) { g_ultra_cal = cal; }
+UltrasonicCal ultrasonicGetCal() { return g_ultra_cal; }
+
+int ultrasonicReadCm() {
+  int raw = ultrasonicReadCmRaw();
+  int cm = static_cast<int>(g_ultra_cal.slope * raw + g_ultra_cal.offset);
+  if (cm < g_ultra_cal.min_cm || cm > g_ultra_cal.max_cm)
+    return -1;
+  return cm;
+}
+
+// Simple linear fit: cm = slope * raw + offset
+bool ultrasonicCalibrate(const int *known_cm, int count) {
+  if (count < 2)
+    return false;
+
+  // take N readings per known distance, use median to reduce noise
+  const int kSamples = 15;
+  long long sum_x = 0, sum_y = 0;
+  long long sum_xx = 0, sum_xy = 0;
+
+  for (int i = 0; i < count; ++i) {
+    int buf[kSamples];
+    for (int s = 0; s < kSamples; ++s) {
+      buf[s] = ultrasonicReadCmRaw();
+    }
+    int raw_med = medianOfBuffer(buf, kSamples);
+
+    sum_x += raw_med;
+    sum_y += known_cm[i];
+    sum_xx += 1LL * raw_med * raw_med;
+    sum_xy += 1LL * raw_med * known_cm[i];
+  }
+
+  long long n = count;
+  long long denom = n * sum_xx - sum_x * sum_x;
+  if (denom == 0)
+    return false;
+
+  g_ultra_cal.slope = static_cast<float>(n * sum_xy - sum_x * sum_y) / denom;
+  g_ultra_cal.offset =
+      static_cast<float>(sum_y * sum_xx - sum_x * sum_xy) / denom;
+  return true;
+}
+
 } // namespace hardware
