@@ -33,11 +33,43 @@ def load_ir(path):
 
 
 def load_color(path):
-    with open(path, "r", encoding="ascii") as f:
-        data = json.load(f)
-    return "SET_COLOR {white_r} {white_g} {white_b} {black_r} {black_g} {black_b}".format(
-        **data
-    )
+  with open(path, "r", encoding="ascii") as f:
+    data = json.load(f)
+  return "SET_COLOR {white_r} {white_g} {white_b} {black_r} {black_g} {black_b}".format(
+    **data
+  )
+
+def load_color_targets(path):
+  with open(path, "r", encoding="ascii") as f:
+    data = json.load(f)
+  required = [
+    "cardboard_r",
+    "cardboard_g",
+    "cardboard_b",
+    "target_black_r",
+    "target_black_g",
+    "target_black_b",
+    "red_r",
+    "red_g",
+    "red_b",
+    "blue_r",
+    "blue_g",
+    "blue_b",
+    "green_r",
+    "green_g",
+    "green_b",
+  ]
+  for key in required:
+    if key not in data:
+      return None
+  return (
+    "SET_COLOR_TARGETS "
+    "{cardboard_r} {cardboard_g} {cardboard_b} "
+    "{target_black_r} {target_black_g} {target_black_b} "
+    "{red_r} {red_g} {red_b} "
+    "{blue_r} {blue_g} {blue_b} "
+    "{green_r} {green_g} {green_b}"
+  ).format(**data)
 
 
 def load_ultra(path):
@@ -67,9 +99,14 @@ def main():
     time.sleep(2)
 
     sent_any = False
-    sent_any |= maybe_send(ser, args.ir, load_ir, "OK:SET_IR")
-    sent_any |= maybe_send(ser, args.color, load_color, "OK:SET_COLOR")
-    sent_any |= maybe_send(ser, args.ultra, load_ultra, "OK:SET_ULTRA")
+  sent_any |= maybe_send(ser, args.ir, load_ir, "OK:SET_IR")
+  sent_any |= maybe_send(ser, args.color, load_color, "OK:SET_COLOR")
+  if os.path.exists(args.color):
+    cmd = load_color_targets(args.color)
+    if cmd:
+      send_and_wait(ser, cmd, "OK:SET_COLOR_TARGETS")
+      sent_any = True
+  sent_any |= maybe_send(ser, args.ultra, load_ultra, "OK:SET_ULTRA")
 
     if not sent_any:
         print("No calibration files found.")

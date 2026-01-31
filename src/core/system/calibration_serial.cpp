@@ -23,12 +23,17 @@ enum CalState {
   CAL_IR_WAIT_BLACK,
   CAL_COLOR_WAIT_WHITE,
   CAL_COLOR_WAIT_BLACK,
+  CAL_COLOR_WAIT_CARDBOARD,
+  CAL_COLOR_WAIT_RED,
+  CAL_COLOR_WAIT_BLUE,
+  CAL_COLOR_WAIT_GREEN,
   CAL_ULTRA_WAIT_POINT
 };
 
 CalState g_state = CAL_IDLE;
 int g_ultra_index = 0;
 int g_ultra_raw[kUltraPointCount];
+hardware::ColorTargets g_color_targets_temp;
 
 char g_cmd_buf[32];
 int g_cmd_len = 0;
@@ -58,6 +63,22 @@ hardware::ColorRaw avgColorRaw(int samples) {
   return out;
 }
 
+// Averages multiple normalized reads into one target sample.
+hardware::ColorTarget avgColorNorm(int samples) {
+  float sum_r = 0, sum_g = 0, sum_b = 0;
+  for (int i = 0; i < samples; ++i) {
+    hardware::ColorNorm n = hardware::colorReadNormalized();
+    sum_r += n.r;
+    sum_g += n.g;
+    sum_b += n.b;
+  }
+  hardware::ColorTarget out;
+  out.r = sum_r / samples;
+  out.g = sum_g / samples;
+  out.b = sum_b / samples;
+  return out;
+}
+
 // Prints IR calibration as a single JSON line.
 void printIrJson(const hardware::IrCal &cal) {
   Serial.print("{\"sensor\":\"ir\"");
@@ -77,7 +98,8 @@ void printIrJson(const hardware::IrCal &cal) {
 }
 
 // Prints color calibration as a single JSON line.
-void printColorJson(const hardware::ColorCal &cal) {
+void printColorJson(const hardware::ColorCal &cal,
+                    const hardware::ColorTargets &targets) {
   Serial.print("{\"sensor\":\"color\"");
   Serial.print(",\"white_r\":");
   Serial.print(cal.white.r);
@@ -91,6 +113,36 @@ void printColorJson(const hardware::ColorCal &cal) {
   Serial.print(cal.black.g);
   Serial.print(",\"black_b\":");
   Serial.print(cal.black.b);
+  Serial.print(",\"cardboard_r\":");
+  Serial.print(targets.cardboard.r, 6);
+  Serial.print(",\"cardboard_g\":");
+  Serial.print(targets.cardboard.g, 6);
+  Serial.print(",\"cardboard_b\":");
+  Serial.print(targets.cardboard.b, 6);
+  Serial.print(",\"target_black_r\":");
+  Serial.print(targets.black.r, 6);
+  Serial.print(",\"target_black_g\":");
+  Serial.print(targets.black.g, 6);
+  Serial.print(",\"target_black_b\":");
+  Serial.print(targets.black.b, 6);
+  Serial.print(",\"red_r\":");
+  Serial.print(targets.red.r, 6);
+  Serial.print(",\"red_g\":");
+  Serial.print(targets.red.g, 6);
+  Serial.print(",\"red_b\":");
+  Serial.print(targets.red.b, 6);
+  Serial.print(",\"blue_r\":");
+  Serial.print(targets.blue.r, 6);
+  Serial.print(",\"blue_g\":");
+  Serial.print(targets.blue.g, 6);
+  Serial.print(",\"blue_b\":");
+  Serial.print(targets.blue.b, 6);
+  Serial.print(",\"green_r\":");
+  Serial.print(targets.green.r, 6);
+  Serial.print(",\"green_g\":");
+  Serial.print(targets.green.g, 6);
+  Serial.print(",\"green_b\":");
+  Serial.print(targets.green.b, 6);
   Serial.println("}");
 }
 
@@ -111,12 +163,14 @@ void printUltraJson(const hardware::UltrasonicCal &cal) {
 // Starts IR calibration and prompts for white surface.
 void startIrCal() {
   g_state = CAL_IR_WAIT_WHITE;
+  Serial.println("IR:STEP1 Place sensors over WHITE surface, press ENTER (or type NEXT).");
   Serial.println("IR:READY_WHITE");
 }
 
 // Starts color calibration and prompts for white surface.
 void startColorCal() {
   g_state = CAL_COLOR_WAIT_WHITE;
+  Serial.println("COLOR:STEP1 Place sensor over WHITE reference, press ENTER (or type NEXT).");
   Serial.println("COLOR:READY_WHITE");
 }
 
@@ -124,6 +178,7 @@ void startColorCal() {
 void startUltraCal() {
   g_state = CAL_ULTRA_WAIT_POINT;
   g_ultra_index = 0;
+  Serial.println("ULTRA:STEP1 Place a flat target at the shown distance.");
   Serial.print("ULTRA:READY_");
   Serial.println(kUltraPoints[g_ultra_index]);
 }
@@ -137,6 +192,7 @@ void handleNext() {
     hardware::irSetCal(cal);
 
     g_state = CAL_IR_WAIT_BLACK;
+    Serial.println("IR:STEP2 Place sensors over BLACK surface, press ENTER (or type NEXT).");
     Serial.println("IR:READY_BLACK");
     return;
   }
@@ -160,6 +216,7 @@ void handleNext() {
     hardware::colorSetCal(cal);
 
     g_state = CAL_COLOR_WAIT_BLACK;
+    Serial.println("COLOR:STEP2 Place sensor over BLACK reference, press ENTER (or type NEXT).");
     Serial.println("COLOR:READY_BLACK");
     return;
   }
@@ -169,8 +226,47 @@ void handleNext() {
     cal.black = avgColorRaw(kColorSamples);
     hardware::colorSetCal(cal);
 
+    g_state = CAL_COLOR_WAIT_CARDBOARD;
+    g_color_targets_temp.black.r = 0.0f;
+    g_color_targets_temp.black.g = 0.0f;
+    g_color_targets_temp.black.b = 0.0f;
+    Serial.println(
+        "COLOR:STEP3 Place sensor over CARDBOARD, press ENTER (or type NEXT).");
+    Serial.println("COLOR:READY_CARDBOARD");
+    return;
+  }
+
+  if (g_state == CAL_COLOR_WAIT_CARDBOARD) {
+    g_color_targets_temp.cardboard = avgColorNorm(kColorSamples);
+    g_state = CAL_COLOR_WAIT_RED;
+    Serial.println("COLOR:STEP4 Place sensor over RED, press ENTER (or type NEXT).");
+    Serial.println("COLOR:READY_RED");
+    return;
+  }
+
+  if (g_state == CAL_COLOR_WAIT_RED) {
+    g_color_targets_temp.red = avgColorNorm(kColorSamples);
+    g_state = CAL_COLOR_WAIT_BLUE;
+    Serial.println("COLOR:STEP5 Place sensor over BLUE, press ENTER (or type NEXT).");
+    Serial.println("COLOR:READY_BLUE");
+    return;
+  }
+
+  if (g_state == CAL_COLOR_WAIT_BLUE) {
+    g_color_targets_temp.blue = avgColorNorm(kColorSamples);
+    g_state = CAL_COLOR_WAIT_GREEN;
+    Serial.println("COLOR:STEP6 Place sensor over GREEN, press ENTER (or type NEXT).");
+    Serial.println("COLOR:READY_GREEN");
+    return;
+  }
+
+  if (g_state == CAL_COLOR_WAIT_GREEN) {
+    g_color_targets_temp.green = avgColorNorm(kColorSamples);
+    hardware::colorSetTargets(g_color_targets_temp);
+    hardware::ColorCal cal = hardware::colorGetCal();
+    hardware::ColorTargets targets = hardware::colorGetTargets();
     g_state = CAL_IDLE;
-    printColorJson(cal);
+    printColorJson(cal, targets);
     return;
   }
 
@@ -188,6 +284,7 @@ void handleNext() {
       return;
     }
 
+    Serial.println("ULTRA:NEXT Place target at the next distance shown.");
     Serial.print("ULTRA:READY_");
     Serial.println(kUltraPoints[g_ultra_index]);
     return;
@@ -231,6 +328,38 @@ bool handleSetCommand(const char *cmd, const char *args) {
     cal.black.b = bb;
     hardware::colorSetCal(cal);
     Serial.println("OK:SET_COLOR");
+    return true;
+  }
+
+  if (strcmp(cmd, "SET_COLOR_TARGETS") == 0) {
+    float cr, cg, cb, br, bg, bb;
+    float rr, rg, rb, ur, ug, ub, gr, gg, gb;
+    int parsed = sscanf(args, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+                        &cr, &cg, &cb, &br, &bg, &bb, &rr, &rg, &rb, &ur, &ug,
+                        &ub, &gr, &gg, &gb);
+    if (parsed != 15) {
+      Serial.println("ERR:BAD_ARGS");
+      return true;
+    }
+
+    hardware::ColorTargets targets;
+    targets.cardboard.r = cr;
+    targets.cardboard.g = cg;
+    targets.cardboard.b = cb;
+    targets.black.r = br;
+    targets.black.g = bg;
+    targets.black.b = bb;
+    targets.red.r = rr;
+    targets.red.g = rg;
+    targets.red.b = rb;
+    targets.blue.r = ur;
+    targets.blue.g = ug;
+    targets.blue.b = ub;
+    targets.green.r = gr;
+    targets.green.g = gg;
+    targets.green.b = gb;
+    hardware::colorSetTargets(targets);
+    Serial.println("OK:SET_COLOR_TARGETS");
     return true;
   }
 
@@ -280,7 +409,8 @@ void handleCommand(char *cmd_line) {
     handleNext();
   } else if (strcmp(cmd_line, "HELP") == 0) {
     Serial.println(
-        "CMD: CAL_IR | CAL_COLOR | CAL_ULTRA | NEXT | SET_IR | SET_COLOR | SET_ULTRA");
+        "CMD: CAL_IR | CAL_COLOR | CAL_ULTRA | NEXT | SET_IR | SET_COLOR | "
+        "SET_COLOR_TARGETS | SET_ULTRA");
   } else {
     Serial.println("ERR:UNKNOWN_CMD");
   }

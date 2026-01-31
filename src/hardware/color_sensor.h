@@ -19,6 +19,20 @@ struct ColorNorm {
   float b;
 };
 
+struct ColorTarget {
+  float r;
+  float g;
+  float b;
+};
+
+struct ColorTargets {
+  ColorTarget cardboard;
+  ColorTarget black;
+  ColorTarget red;
+  ColorTarget blue;
+  ColorTarget green;
+};
+
 void colorInit();
 ColorRaw colorReadRawRgb();
 
@@ -27,5 +41,8 @@ ColorCal colorGetCal();
 
 ColorNorm colorReadNormalized();
 bool colorCalibrate(int white_samples, int black_samples);
+
+void colorSetTargets(const ColorTargets &targets);
+ColorTargets colorGetTargets();
 
 } // namespace hardware

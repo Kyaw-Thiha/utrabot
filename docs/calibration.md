@@ -87,6 +87,9 @@ Color sensor:
 - Stores per-channel white/black RGB.
 - Normalized values are computed per channel:
   `(raw - black) / (white - black)` and clamped to 0..1.
+- After normalization, captures target colors in order:
+  cardboard, red, blue, green.
+- Target black is derived from the normalization black reference.
 
 Ultrasonic sensor:
 - Uses known distances (10, 20, 30, 40, 60, 80 cm by default).
@@ -117,7 +120,8 @@ Command handling and prompts:
 Load calibration values from JSON (host -> Arduino):
 - Run: `python3 scripts/load_calibration.py --port /dev/ttyACM0`
 - The script reads `cal_ir.json`, `cal_color.json`, `cal_ultra.json` if present.
-- It sends `SET_IR`, `SET_COLOR`, and `SET_ULTRA` commands over Serial.
+- It sends `SET_IR`, `SET_COLOR`, `SET_COLOR_TARGETS`, and `SET_ULTRA`
+  commands over Serial.
 
 Calibration math functions:
 ```cpp
