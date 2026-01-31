@@ -194,18 +194,93 @@ void handleNext() {
   }
 }
 
+// Parses and applies calibration updates from SET_* commands.
+bool handleSetCommand(const char *cmd, const char *args) {
+  if (strcmp(cmd, "SET_IR") == 0) {
+    int lw, lb, rw, rb, lt, rt;
+    if (sscanf(args, "%d %d %d %d %d %d", &lw, &lb, &rw, &rb, &lt, &rt) != 6) {
+      Serial.println("ERR:BAD_ARGS");
+      return true;
+    }
+
+    hardware::IrCal cal;
+    cal.left_white = lw;
+    cal.left_black = lb;
+    cal.right_white = rw;
+    cal.right_black = rb;
+    cal.left_thresh = lt;
+    cal.right_thresh = rt;
+    hardware::irSetCal(cal);
+    Serial.println("OK:SET_IR");
+    return true;
+  }
+
+  if (strcmp(cmd, "SET_COLOR") == 0) {
+    int wr, wg, wb, br, bg, bb;
+    if (sscanf(args, "%d %d %d %d %d %d", &wr, &wg, &wb, &br, &bg, &bb) != 6) {
+      Serial.println("ERR:BAD_ARGS");
+      return true;
+    }
+
+    hardware::ColorCal cal;
+    cal.white.r = wr;
+    cal.white.g = wg;
+    cal.white.b = wb;
+    cal.black.r = br;
+    cal.black.g = bg;
+    cal.black.b = bb;
+    hardware::colorSetCal(cal);
+    Serial.println("OK:SET_COLOR");
+    return true;
+  }
+
+  if (strcmp(cmd, "SET_ULTRA") == 0) {
+    float slope, offset;
+    int min_cm, max_cm;
+    if (sscanf(args, "%f %f %d %d", &slope, &offset, &min_cm, &max_cm) != 4) {
+      Serial.println("ERR:BAD_ARGS");
+      return true;
+    }
+
+    hardware::UltrasonicCal cal = hardware::ultrasonicGetCal();
+    cal.slope = slope;
+    cal.offset = offset;
+    cal.min_cm = min_cm;
+    cal.max_cm = max_cm;
+    hardware::ultrasonicSetCal(cal);
+    Serial.println("OK:SET_ULTRA");
+    return true;
+  }
+
+  return false;
+}
+
 // Dispatches serial commands to calibration steps.
-void handleCommand(const char *cmd) {
-  if (strcmp(cmd, "CAL_IR") == 0) {
+void handleCommand(char *cmd_line) {
+  char *args = cmd_line;
+  while (*args != '\0' && *args != ' ')
+    ++args;
+  if (*args == ' ') {
+    *args = '\0';
+    ++args;
+  } else {
+    args = cmd_line + strlen(cmd_line);
+  }
+
+  if (handleSetCommand(cmd_line, args))
+    return;
+
+  if (strcmp(cmd_line, "CAL_IR") == 0) {
     startIrCal();
-  } else if (strcmp(cmd, "CAL_COLOR") == 0) {
+  } else if (strcmp(cmd_line, "CAL_COLOR") == 0) {
     startColorCal();
-  } else if (strcmp(cmd, "CAL_ULTRA") == 0) {
+  } else if (strcmp(cmd_line, "CAL_ULTRA") == 0) {
     startUltraCal();
-  } else if (strcmp(cmd, "NEXT") == 0) {
+  } else if (strcmp(cmd_line, "NEXT") == 0) {
     handleNext();
-  } else if (strcmp(cmd, "HELP") == 0) {
-    Serial.println("CMD: CAL_IR | CAL_COLOR | CAL_ULTRA | NEXT");
+  } else if (strcmp(cmd_line, "HELP") == 0) {
+    Serial.println(
+        "CMD: CAL_IR | CAL_COLOR | CAL_ULTRA | NEXT | SET_IR | SET_COLOR | SET_ULTRA");
   } else {
     Serial.println("ERR:UNKNOWN_CMD");
   }

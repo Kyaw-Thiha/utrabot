@@ -3,6 +3,29 @@
 This document explains how to run sensor calibrations via USB serial and how
 the calibration values are computed.
 
+## Helpful Commands
+
+### Calibrating
+- IR sensor:
+```bash
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
+```
+
+- Color sensor:
+```bash
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor color
+```
+
+- Ultrasonic sensor:
+```bash
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ultra
+```
+
+### Loading Calibration
+```bash
+python scripts/load_calibration.py --port /dev/ttyACM0
+```
+
 ## 1) Running Calibration (CLI)
 
 Prerequisites:
@@ -90,6 +113,11 @@ Command handling and prompts:
 // src/core/system/calibration_serial.cpp
 // Commands: CAL_IR, CAL_COLOR, CAL_ULTRA, NEXT
 ```
+
+Load calibration values from JSON (host -> Arduino):
+- Run: `python3 scripts/load_calibration.py --port /dev/ttyACM0`
+- The script reads `cal_ir.json`, `cal_color.json`, `cal_ultra.json` if present.
+- It sends `SET_IR`, `SET_COLOR`, and `SET_ULTRA` commands over Serial.
 
 Calibration math functions:
 ```cpp
