@@ -17,5 +17,8 @@ void ultrasonicSetCal(const UltrasonicCal &cal);
 UltrasonicCal ultrasonicGetCal();
 
 bool ultrasonicCalibrate(const int *known_cm, int count);
+int ultrasonicReadRawMedian(int samples);
+bool ultrasonicSetCalFromPairs(const int *raw_med, const int *known_cm,
+                               int count);
 
 } // namespace hardware

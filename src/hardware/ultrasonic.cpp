@@ -77,4 +77,50 @@ bool ultrasonicCalibrate(const int *known_cm, int count) {
   return true;
 }
 
+// Reads multiple raw samples and returns their median.
+int ultrasonicReadRawMedian(int samples) {
+  if (samples <= 0)
+    return ultrasonicReadCmRaw();
+
+  const int kMaxSamples = 20;
+  int n = samples > kMaxSamples ? kMaxSamples : samples;
+  int buf[kMaxSamples];
+
+  for (int i = 0; i < n; ++i) {
+    buf[i] = ultrasonicReadCmRaw();
+  }
+
+  return medianOfBuffer(buf, n);
+}
+
+// Computes and stores calibration from paired raw/known distance samples.
+bool ultrasonicSetCalFromPairs(const int *raw_med, const int *known_cm,
+                               int count) {
+  if (count < 2)
+    return false;
+
+  long long sum_x = 0, sum_y = 0;
+  long long sum_xx = 0, sum_xy = 0;
+
+  for (int i = 0; i < count; ++i) {
+    int x = raw_med[i];
+    int y = known_cm[i];
+    sum_x += x;
+    sum_y += y;
+    sum_xx += 1LL * x * x;
+    sum_xy += 1LL * x * y;
+  }
+
+  long long n = count;
+  long long denom = n * sum_xx - sum_x * sum_x;
+
+  if (denom == 0)
+    return false;
+
+  g_ultra_cal.slope = static_cast<float>(n * sum_xy - sum_x * sum_y) / denom;
+  g_ultra_cal.offset =
+      static_cast<float>(sum_y * sum_xx - sum_x * sum_xy) / denom;
+  return true;
+}
+
 } // namespace hardware
