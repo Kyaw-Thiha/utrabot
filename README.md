@@ -45,8 +45,8 @@ Couldn't find link
 ### Ultrasonic Sensor
 HY-SRF05
 
-- ![Product Link](https://www.pishop.ca/product/arduino-compatible-ultrasonic-distance-measuring-sensor-module/)
-- ![Datasheet (Short)](https://www.micros.com.pl/mediaserver/M_HY-SRF05_0003.pdf)
+- [Product Link](https://www.pishop.ca/product/arduino-compatible-ultrasonic-distance-measuring-sensor-module/)
+- [Datasheet (Short)](https://www.micros.com.pl/mediaserver/M_HY-SRF05_0003.pdf)
 
 ### Servo Motor
 Tower Pro Micro Servo 9g (SG90)
