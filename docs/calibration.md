@@ -75,3 +75,30 @@ Notes:
 - Use a flat target for ultrasonic.
 - Keep lighting consistent for color calibration.
 - Repeat calibration if environment changes.
+
+## 3) Main Calibration Code References
+
+Serial command handler entry points:
+```cpp
+// src/main.cpp
+calibration_serial::init(115200);
+calibration_serial::poll();
+```
+
+Command handling and prompts:
+```cpp
+// src/core/system/calibration_serial.cpp
+// Commands: CAL_IR, CAL_COLOR, CAL_ULTRA, NEXT
+```
+
+Calibration math functions:
+```cpp
+// src/hardware/ir_sensor.cpp
+bool irCalibrate(int white_samples, int black_samples);
+
+// src/hardware/color_sensor.cpp
+bool colorCalibrate(int white_samples, int black_samples);
+
+// src/hardware/ultrasonic.cpp
+bool ultrasonicSetCalFromPairs(const int *raw_med, const int *known_cm, int count);
+```
