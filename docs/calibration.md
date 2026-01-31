@@ -7,23 +7,23 @@ the calibration values are computed.
 
 Prerequisites:
 - Arduino Uno connected via USB
-- Python 3 installed
+- Python installed
 - `pyserial` installed: `pip install pyserial`
 
 Commands:
 - IR sensor:
 ```bash
-python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
 ```
 
 - Color sensor:
 ```bash
-python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor color
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor color
 ```
 
 - Ultrasonic sensor:
 ```bash
-python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ultra
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ultra
 ```
 
 Port name examples:
