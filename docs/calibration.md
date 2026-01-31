@@ -12,11 +12,19 @@ Prerequisites:
 
 Commands:
 - IR sensor:
-  `python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ir`
+```bash
+python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
+```
+
 - Color sensor:
-  `python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor color`
+```bash
+python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor color
+```
+
 - Ultrasonic sensor:
-  `python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ultra`
+```bash
+python3 scripts/calibrate.py --port /dev/ttyACM0 --sensor ultra
+```
 
 Port name examples:
 - Linux: `/dev/ttyACM0` or `/dev/ttyUSB0`
