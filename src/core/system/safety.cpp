@@ -1,4 +1,4 @@
-#include "core/safety.h"
+#include "core/system/safety.h"
 namespace safety {
 void init() {}
 void update() {}

@@ -1,6 +1,6 @@
 #include "state_machine/states/obstacle_course.h"
 
-namespace ramp_climb {
+namespace obstacle_course {
 class ObstacleCourseState : public BaseState {
 public:
   void enter() override {}
@@ -12,4 +12,4 @@ BaseState &instance() {
   static ObstacleCourseState s;
   return s;
 }
-} // namespace ramp_climb
+} // namespace obstacle_course

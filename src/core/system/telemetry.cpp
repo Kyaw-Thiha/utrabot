@@ -1,4 +1,4 @@
-#include "core/telemetry.h"
+#include "core/system/telemetry.h"
 #include <Arduino.h>
 
 namespace telemetry {
