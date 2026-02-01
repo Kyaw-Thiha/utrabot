@@ -1,8 +1,11 @@
 #include <Arduino.h>
 
+#include "config.h"
 #include "task_select.h"
 
 #include "core/system/calibration_serial.h"
+#include "behavior/line_follow.h"
+#include "behavior/obstacle_avoid.h"
 #include "hardware/color_sensor.h"
 #include "hardware/ir_sensor.h"
 #include "hardware/motor_driver.h"
@@ -21,6 +24,8 @@ void setup() {
   hardware::colorInit();
   hardware::motorInit();
   calibration_serial::init(115200);
+  behavior::lineFollowSetConfig(config::lineFollowConfig());
+  behavior::obstacleAvoidSetConfig(config::obstacleAvoidConfig());
   state_machine::init();
 #endif
 }

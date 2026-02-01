@@ -2,9 +2,11 @@
 
 #include <math.h>
 
+#include "behavior/obstacle_avoid.h"
 #include "hardware/color_sensor.h"
 #include "hardware/ir_sensor.h"
 #include "hardware/motor_driver.h"
+#include "state_machine/state_machine.h"
 
 namespace behavior {
 namespace {
@@ -88,6 +90,11 @@ void driveSearch() {
 void lineFollowInit() {}
 
 void lineFollowUpdate() {
+  if (obstacleDetected()) {
+    state_machine::transitionTo(StateId::OBSTACLE_AVOID);
+    return;
+  }
+
   hardware::ColorNorm n = hardware::colorReadNormalized();
 
   if (isOnLine(n)) {
@@ -95,6 +102,11 @@ void lineFollowUpdate() {
   } else {
     driveSearch();
   }
+}
+
+bool lineFollowIsOnLine() {
+  hardware::ColorNorm n = hardware::colorReadNormalized();
+  return isOnLine(n);
 }
 
 void lineFollowSetConfig(const LineFollowConfig &cfg) { g_cfg = cfg; }

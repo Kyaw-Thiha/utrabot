@@ -22,6 +22,7 @@ struct LineFollowConfig {
 
 void lineFollowInit();
 void lineFollowUpdate();
+bool lineFollowIsOnLine();
 
 void lineFollowSetConfig(const LineFollowConfig &cfg);
 LineFollowConfig lineFollowGetConfig();

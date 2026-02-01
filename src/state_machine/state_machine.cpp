@@ -3,6 +3,7 @@
 
 #include "state_machine/states/find_black.h"
 #include "state_machine/states/line_follow.h"
+#include "state_machine/states/obstacle_avoid.h"
 #include "state_machine/states/obstacle_course.h"
 #include "state_machine/states/push_cube.h"
 #include "state_machine/states/ramp_climb.h"
@@ -43,6 +44,9 @@ void transitionTo(int next_id) {
     break;
   case StateId::LINE_FOLLOW:
     current = &line_follow::instance();
+    break;
+  case StateId::OBSTACLE_AVOID:
+    current = &obstacle_avoid::instance();
     break;
   default:
     current = &ramp_climb::instance();
