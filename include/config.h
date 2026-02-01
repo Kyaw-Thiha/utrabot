@@ -7,10 +7,13 @@
 
 namespace config {
 
+inline bool invertLeftMotor() { return false; }
+inline bool invertRightMotor() { return true; }
+
 inline behavior::LineFollowConfig lineFollowConfig() {
   behavior::LineFollowConfig cfg;
-  cfg.base_speed = 140;
-  cfg.turn_speed = 110;
+  cfg.base_speed = 150;
+  cfg.turn_speed = 120;
   cfg.match_thresh = 0.18f;
   cfg.bg_margin = 0.05f;
   cfg.allowed_mask =
@@ -26,7 +29,7 @@ inline behavior::ObstacleAvoidConfig obstacleAvoidConfig() {
   cfg.clearance_cm = 5;
   cfg.turn_90_ms = 600;
   cfg.cm_per_ms = 0.05f;
-  cfg.drive_speed = 140;
+  cfg.drive_speed = 150;
   cfg.turn_speed = 120;
   return cfg;
 }

@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "config.h"
 #include "pins.h"
 
 namespace hardware {
@@ -47,8 +48,10 @@ void motorInit() {
 }
 
 void motorSet(int left_pwm, int right_pwm) {
-  setMotor(MOTOR_A_IN1, MOTOR_A_IN2, MOTOR_A_EN, left_pwm);
-  setMotor(MOTOR_B_IN1, MOTOR_B_IN2, MOTOR_B_EN, right_pwm);
+  int left = config::invertLeftMotor() ? -left_pwm : left_pwm;
+  int right = config::invertRightMotor() ? -right_pwm : right_pwm;
+  setMotor(MOTOR_A_IN1, MOTOR_A_IN2, MOTOR_A_EN, left);
+  setMotor(MOTOR_B_IN1, MOTOR_B_IN2, MOTOR_B_EN, right);
 }
 
 void motorStop() {
