@@ -3,19 +3,20 @@
 #include <Arduino.h>
 #include <string.h>
 
+#include "calibration_configs.h"
+
 #include "hardware/color_sensor.h"
 #include "hardware/ir_sensor.h"
 #include "hardware/ultrasonic.h"
 
 namespace {
-const long kDefaultBaud = 115200;
+const long kDefaultBaud = calibration_config::kDefaultBaud;
 
-const int kIrSamples = 20;
-const int kColorSamples = 20;
-const int kUltraSamples = 15;
+const int kIrSamples = calibration_config::kIrSamples;
+const int kColorSamples = calibration_config::kColorSamples;
+const int kUltraSamples = calibration_config::kUltraSamples;
 
-const int kUltraPoints[] = {10, 20, 30, 40, 60, 80};
-const int kUltraPointCount = sizeof(kUltraPoints) / sizeof(kUltraPoints[0]);
+const int kUltraPointCount = calibration_config::kUltraPointCount;
 
 enum CalState {
   CAL_IDLE,
@@ -217,9 +218,9 @@ void startUltraCal() {
   g_ultra_index = 0;
   Serial.println("ULTRA:STEP1 Place a flat target at the shown distance.");
   Serial.print("ULTRA:READY_");
-  Serial.println(kUltraPoints[g_ultra_index]);
+  Serial.println(calibration_config::kUltraPoints[g_ultra_index]);
   Serial.print("ULTRA:PLACE target at ");
-  Serial.print(kUltraPoints[g_ultra_index]);
+  Serial.print(calibration_config::kUltraPoints[g_ultra_index]);
   Serial.println(" cm, press ENTER (or type NEXT).");
 }
 
@@ -328,8 +329,8 @@ void handleNext() {
     ++g_ultra_index;
 
     if (g_ultra_index >= kUltraPointCount) {
-      hardware::ultrasonicSetCalFromPairs(g_ultra_raw, kUltraPoints,
-                                          kUltraPointCount);
+      hardware::ultrasonicSetCalFromPairs(
+          g_ultra_raw, calibration_config::kUltraPoints, kUltraPointCount);
       hardware::UltrasonicCal cal = hardware::ultrasonicGetCal();
       g_state = CAL_IDLE;
       printUltraJson(cal);
@@ -338,9 +339,9 @@ void handleNext() {
 
     Serial.println("ULTRA:NEXT Place target at the next distance shown.");
     Serial.print("ULTRA:READY_");
-    Serial.println(kUltraPoints[g_ultra_index]);
+    Serial.println(calibration_config::kUltraPoints[g_ultra_index]);
     Serial.print("ULTRA:PLACE target at ");
-    Serial.print(kUltraPoints[g_ultra_index]);
+    Serial.print(calibration_config::kUltraPoints[g_ultra_index]);
     Serial.println(" cm, press ENTER (or type NEXT).");
     return;
   }

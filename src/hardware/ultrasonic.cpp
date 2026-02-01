@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "calibration_configs.h"
 #include "pins.h"
 
 namespace hardware {
@@ -83,7 +84,7 @@ bool ultrasonicCalibrate(const int *known_cm, int count) {
     return false;
 
   // take N readings per known distance, use median to reduce noise
-  const int kSamples = 15;
+  const int kSamples = calibration_config::kUltraCalSamples;
   long long sum_x = 0, sum_y = 0;
   long long sum_xx = 0, sum_xy = 0;
 
@@ -121,7 +122,7 @@ int ultrasonicReadRawMedian(int samples) {
   if (samples <= 0)
     return ultrasonicReadCmRaw();
 
-  const int kMaxSamples = 20;
+  const int kMaxSamples = calibration_config::kUltraMedianMaxSamples;
   int n = samples > kMaxSamples ? kMaxSamples : samples;
   int buf[kMaxSamples];
 
