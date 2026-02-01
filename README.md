@@ -13,6 +13,25 @@ Starter PlatformIO project for Arduino Uno.
 pio run
 ```
 
+## Task Selection (PlatformIO + Arduino)
+
+Set `ACTIVE_TASK` at compile time to choose which task runs.
+
+Tasks:
+- `TASK_CALIBRATION`
+- `TASK_LINE_FOLLOW`
+
+PlatformIO (platformio.ini):
+```
+build_flags = -DACTIVE_TASK=TASK_LINE_FOLLOW
+```
+
+Arduino IDE:
+Open `utrabot.ino` and change:
+```
+#define ACTIVE_TASK TASK_LINE_FOLLOW
+```
+
 ## Generate compile_commands.json 
 ```bash
 pio run -t compiledb
