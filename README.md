@@ -50,6 +50,8 @@ pio device monitor
 ```
 
 ## Components
+Pins are defined in `include/pins.h`.
+
 ### IR Sensor
 2 of MH IR Sensor
 

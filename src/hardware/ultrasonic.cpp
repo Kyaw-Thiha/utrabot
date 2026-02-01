@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include "hardware/pins.h"
+#include "pins.h"
 
 namespace hardware {
 static UltrasonicCal g_ultra_cal;

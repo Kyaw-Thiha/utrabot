@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-#include "hardware/pins.h"
+#include "pins.h"
 
 namespace hardware {
 namespace {

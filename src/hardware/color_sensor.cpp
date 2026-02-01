@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include "hardware/pins.h"
+#include "pins.h"
 
 namespace hardware {
 static ColorCal g_color_cal;

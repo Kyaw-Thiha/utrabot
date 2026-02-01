@@ -6,6 +6,7 @@
 #include "hardware/color_sensor.h"
 #include "hardware/ir_sensor.h"
 #include "hardware/motor_driver.h"
+#include "state_machine/base_state.h"
 #include "state_machine/state_machine.h"
 
 namespace behavior {
