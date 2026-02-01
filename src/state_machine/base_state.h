@@ -5,7 +5,8 @@ enum StateId {
   FIND_BLACK = 1,
   PUSH_CUBE = 2,
   OBSTACLE_COURSE = 3,
-  RETURN_HOME = 4
+  RETURN_HOME = 4,
+  LINE_FOLLOW = 5
 };
 
 class BaseState {

@@ -2,6 +2,7 @@
 #include "state_machine/base_state.h"
 
 #include "state_machine/states/find_black.h"
+#include "state_machine/states/line_follow.h"
 #include "state_machine/states/obstacle_course.h"
 #include "state_machine/states/push_cube.h"
 #include "state_machine/states/ramp_climb.h"
@@ -11,7 +12,7 @@ namespace state_machine {
 static BaseState *current = nullptr;
 
 void init() {
-  current = &ramp_climb::instance();
+  current = &line_follow::instance();
   current->enter();
 }
 
@@ -39,6 +40,9 @@ void transitionTo(int next_id) {
     break;
   case StateId::RETURN_HOME:
     current = &return_home::instance();
+    break;
+  case StateId::LINE_FOLLOW:
+    current = &line_follow::instance();
     break;
   default:
     current = &ramp_climb::instance();
