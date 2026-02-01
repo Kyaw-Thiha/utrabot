@@ -227,6 +227,9 @@ void startUltraCal() {
   Serial.println("ULTRA:STEP1 Place a flat target at the shown distance.");
   Serial.print("ULTRA:READY_");
   Serial.println(kUltraPoints[g_ultra_index]);
+  Serial.print("ULTRA:PLACE target at ");
+  Serial.print(kUltraPoints[g_ultra_index]);
+  Serial.println(" cm, press ENTER (or type NEXT).");
 }
 
 // Advances the current calibration step.
@@ -370,6 +373,9 @@ void handleNext() {
     Serial.println("ULTRA:NEXT Place target at the next distance shown.");
     Serial.print("ULTRA:READY_");
     Serial.println(kUltraPoints[g_ultra_index]);
+    Serial.print("ULTRA:PLACE target at ");
+    Serial.print(kUltraPoints[g_ultra_index]);
+    Serial.println(" cm, press ENTER (or type NEXT).");
     return;
   }
 }
