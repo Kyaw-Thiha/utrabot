@@ -5,12 +5,12 @@ without running as root.
 
 1) Download the PlatformIO udev rules file:
 ```
-sudo curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules -o /etc/udev/rules.d/99-platformio-udev.rules
+sudo curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/develop/scripts/99-platformio-udev.rules -o /etc/udev/rules.d/99-platformio-udev.rules
 ```
 
 If `curl` is not available, use `wget`:
 ```
-sudo wget -O /etc/udev/rules.d/99-platformio-udev.rules https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules
+sudo wget -O /etc/udev/rules.d/99-platformio-udev.rules https://raw.githubusercontent.com/platformio/platformio-core/develop/scripts/99-platformio-udev.rules
 ```
 
 2) Reload udev rules and replug the board:
