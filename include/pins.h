@@ -7,17 +7,17 @@ const int TRIG_PIN = 2;
 const int ECHO_PIN = 3;
 // VCC to 5V, GND to GND on Arduino
 
-// IR Sensor Pins
-const int IR_LEFT = 8;
-const int IR_RIGHT = 9;
+// Motor Driver Pins (L298N)
+const int MOTOR_A_EN = 13;  // ENA
+const int MOTOR_A_IN1 = 12; // IN1
+const int MOTOR_A_IN2 = 11; // IN2
+const int MOTOR_B_EN = 8;   // ENB
+const int MOTOR_B_IN1 = 10; // IN3
+const int MOTOR_B_IN2 = 9;  // IN4
 
-// Motor Driver Pins (generic H-bridge with IN1/IN2/EN per motor)
-const int MOTOR_A_IN1 = 13;
-const int MOTOR_A_IN2 = 12;
-const int MOTOR_A_EN = 10;  // PWM pin
-const int MOTOR_B_IN1 = 7;
-const int MOTOR_B_IN2 = 6;
-const int MOTOR_B_EN = 5;   // PWM pin
+// IR Sensor Pins
+const int IR_LEFT = 3;
+const int IR_RIGHT = 2;
 
 // Servo Pins
 const int SERVO_PIN = 4;
