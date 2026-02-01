@@ -1,5 +1,9 @@
 #include "hardware/ultrasonic.h"
 
+#include <Arduino.h>
+
+#include "hardware/pins.h"
+
 namespace hardware {
 static UltrasonicCal g_ultra_cal;
 
@@ -22,6 +26,29 @@ static int medianOfBuffer(int *buf, int n) {
   return buf[n / 2];
 }
 
+// Sets up ultrasonic sensor pin modes.
+void ultrasonicInit() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  digitalWrite(TRIG_PIN, LOW);
+}
+
+// Returns the raw echo time in microseconds.
+int ultrasonicReadCmRaw() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  unsigned long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0)
+    return 0;
+
+  return static_cast<int>(duration);
+}
+
 // Stores calibration parameters for later reads.
 void ultrasonicSetCal(const UltrasonicCal &cal) { g_ultra_cal = cal; }
 
@@ -31,6 +58,8 @@ UltrasonicCal ultrasonicGetCal() { return g_ultra_cal; }
 // Reads a raw value, applies calibration, and enforces bounds.
 int ultrasonicReadCm() {
   int raw = ultrasonicReadCmRaw();
+  if (raw == 0)
+    return -1;
   int cm = static_cast<int>(g_ultra_cal.slope * raw + g_ultra_cal.offset);
 
   if (cm < g_ultra_cal.min_cm || cm > g_ultra_cal.max_cm)

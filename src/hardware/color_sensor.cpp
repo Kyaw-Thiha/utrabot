@@ -1,8 +1,49 @@
 #include "hardware/color_sensor.h"
 
+#include <Arduino.h>
+
+#include "hardware/pins.h"
+
 namespace hardware {
 static ColorCal g_color_cal;
 static ColorTargets g_color_targets;
+
+// Sets up color sensor pin modes and frequency scaling.
+void colorInit() {
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(OUT, INPUT);
+  pinMode(OE, OUTPUT);
+
+  digitalWrite(OE, LOW);
+
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+}
+
+// Reads raw RGB frequency values from the TCS3200 sensor.
+ColorRaw colorReadRawRgb() {
+  ColorRaw out;
+
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  out.r = static_cast<int>(pulseIn(OUT, LOW));
+  delayMicroseconds(100);
+
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  out.g = static_cast<int>(pulseIn(OUT, LOW));
+  delayMicroseconds(100);
+
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  out.b = static_cast<int>(pulseIn(OUT, LOW));
+  delayMicroseconds(100);
+
+  return out;
+}
 
 // Averages multiple raw RGB reads into one sample.
 static ColorRaw avgSamples(int samples) {

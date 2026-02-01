@@ -1,5 +1,9 @@
 #include "hardware/ir_sensor.h"
 
+#include <Arduino.h>
+
+#include "hardware/pins.h"
+
 namespace hardware {
 static IrCal g_ir_cal;
 
@@ -23,6 +27,18 @@ void irSetCal(const IrCal &cal) { g_ir_cal = cal; }
 
 // Returns the current calibration parameters.
 IrCal irGetCal() { return g_ir_cal; }
+
+// Sets up IR sensor pin modes.
+void irInit() {
+  pinMode(IR_LEFT, INPUT);
+  pinMode(IR_RIGHT, INPUT);
+}
+
+// Returns the raw left IR sensor reading.
+int irReadLeftRaw() { return digitalRead(IR_LEFT); }
+
+// Returns the raw right IR sensor reading.
+int irReadRightRaw() { return digitalRead(IR_RIGHT); }
 
 // Returns a normalized left sensor reading in 0..1000.
 int irReadLeft() {
