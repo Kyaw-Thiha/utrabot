@@ -6,6 +6,7 @@
 
 namespace hardware {
 static UltrasonicCal g_ultra_cal;
+static bool g_ultra_cal_valid = false;
 
 // Sorts the buffer in ascending order for median extraction.
 static void sortBuffer(int *buf, int n) {
@@ -50,7 +51,10 @@ int ultrasonicReadCmRaw() {
 }
 
 // Stores calibration parameters for later reads.
-void ultrasonicSetCal(const UltrasonicCal &cal) { g_ultra_cal = cal; }
+void ultrasonicSetCal(const UltrasonicCal &cal) {
+  g_ultra_cal = cal;
+  g_ultra_cal_valid = true;
+}
 
 // Returns the current calibration parameters.
 UltrasonicCal ultrasonicGetCal() { return g_ultra_cal; }
@@ -60,7 +64,12 @@ int ultrasonicReadCm() {
   int raw = ultrasonicReadCmRaw();
   if (raw == 0)
     return -1;
-  int cm = static_cast<int>(g_ultra_cal.slope * raw + g_ultra_cal.offset);
+  int cm = 0;
+  if (g_ultra_cal_valid) {
+    cm = static_cast<int>(g_ultra_cal.slope * raw + g_ultra_cal.offset);
+  } else {
+    cm = static_cast<int>(raw * 0.034f / 2.0f);
+  }
 
   if (cm < g_ultra_cal.min_cm || cm > g_ultra_cal.max_cm)
     return -1;
@@ -102,6 +111,7 @@ bool ultrasonicCalibrate(const int *known_cm, int count) {
   g_ultra_cal.slope = static_cast<float>(n * sum_xy - sum_x * sum_y) / denom;
   g_ultra_cal.offset =
       static_cast<float>(sum_y * sum_xx - sum_x * sum_xy) / denom;
+  g_ultra_cal_valid = true;
 
   return true;
 }
@@ -149,6 +159,7 @@ bool ultrasonicSetCalFromPairs(const int *raw_med, const int *known_cm,
   g_ultra_cal.slope = static_cast<float>(n * sum_xy - sum_x * sum_y) / denom;
   g_ultra_cal.offset =
       static_cast<float>(sum_y * sum_xx - sum_x * sum_xy) / denom;
+  g_ultra_cal_valid = true;
   return true;
 }
 

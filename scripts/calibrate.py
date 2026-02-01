@@ -14,20 +14,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", required=True)
     parser.add_argument(
-        "--sensor", required=True, choices=["ir", "ir_profile", "color", "ultra"]
+        "--sensor", required=True, choices=["ir_profile", "color", "ultra"]
     )
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
     cmd_map = {
-        "ir": "CAL_IR",
         "ir_profile": "CAL_IR_PROFILE",
         "color": "CAL_COLOR",
         "ultra": "CAL_ULTRA",
     }
     out_map = {
-        "ir": "cal_ir.json",
         "ir_profile": "cal_ir_profile.json",
         "color": "cal_color.json",
         "ultra": "cal_ultra.json",

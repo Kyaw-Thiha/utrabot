@@ -6,11 +6,6 @@ the calibration values are computed.
 ## Helpful Commands
 
 ### Calibrating
-- IR sensor:
-```bash
-python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
-```
-
 - IR profile logging:
 ```bash
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir_profile
@@ -39,11 +34,6 @@ Prerequisites:
 - `pyserial` installed: `pip install pyserial`
 
 Commands:
-- IR sensor:
-```bash
-python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
-```
-
 - IR profile logging:
 ```bash
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir_profile
@@ -69,13 +59,12 @@ What you will see:
 - When prompted, position the sensor (white/black target or distance marker)
   and press Enter.
 - The script writes a single JSON line to:
-  - `cal_ir.json`
   - `cal_ir_profile.json`
   - `cal_color.json`
   - `cal_ultra.json`
 
 Serial commands (manual use):
-- `CAL_IR`, `CAL_IR_PROFILE`, `CAL_COLOR`, `CAL_ULTRA` to start
+- `CAL_IR_PROFILE`, `CAL_COLOR`, `CAL_ULTRA` to start
 - `NEXT` to advance each step
 - `HELP` to list commands
 
@@ -88,10 +77,7 @@ Example manual session:
 ## 2) How Calibration Works (Overview)
 
 IR sensor:
-- Samples `kIrSamples` readings on white and black surfaces.
-- Stores `left_white`, `left_black`, `right_white`, `right_black`.
-- Thresholds are midpoints between white and black.
-- Normalized output maps raw ADC to 0..1000 using white/black bounds.
+- Calibration is disabled for digital IR sensors; use direct reads.
 - Optional: IR profile logging collects raw readings for
   cardboard, red, blue, and green surfaces.
 
@@ -109,6 +95,8 @@ Ultrasonic sensor:
 - For each point, collects `kUltraSamples` and uses the median raw value.
 - Fits a linear model: `cm = slope * raw + offset`.
 - The calibrated read clamps values outside min/max distance.
+- If no calibration is loaded, it uses the default conversion
+  `cm = time_us * 0.034 / 2`.
 
 Notes:
 - Use a flat target for ultrasonic.

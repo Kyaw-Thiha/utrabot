@@ -19,8 +19,6 @@ const int kUltraPointCount = sizeof(kUltraPoints) / sizeof(kUltraPoints[0]);
 
 enum CalState {
   CAL_IDLE,
-  CAL_IR_WAIT_WHITE,
-  CAL_IR_WAIT_BLACK,
   CAL_IR_PROFILE_WAIT_CARDBOARD,
   CAL_IR_PROFILE_WAIT_RED,
   CAL_IR_PROFILE_WAIT_BLUE,
@@ -199,13 +197,6 @@ void printIrProfileJson(const IrProfile &p) {
   Serial.println("}");
 }
 
-// Starts IR calibration and prompts for white surface.
-void startIrCal() {
-  g_state = CAL_IR_WAIT_WHITE;
-  Serial.println("IR:STEP1 Place sensors over WHITE surface, press ENTER (or type NEXT).");
-  Serial.println("IR:READY_WHITE");
-}
-
 // Starts IR profiling for material reflectance.
 void startIrProfile() {
   g_state = CAL_IR_PROFILE_WAIT_CARDBOARD;
@@ -234,31 +225,6 @@ void startUltraCal() {
 
 // Advances the current calibration step.
 void handleNext() {
-  if (g_state == CAL_IR_WAIT_WHITE) {
-    hardware::IrCal cal = hardware::irGetCal();
-    cal.left_white = avgRaw(hardware::irReadLeftRaw, kIrSamples);
-    cal.right_white = avgRaw(hardware::irReadRightRaw, kIrSamples);
-    hardware::irSetCal(cal);
-
-    g_state = CAL_IR_WAIT_BLACK;
-    Serial.println("IR:STEP2 Place sensors over BLACK surface, press ENTER (or type NEXT).");
-    Serial.println("IR:READY_BLACK");
-    return;
-  }
-
-  if (g_state == CAL_IR_WAIT_BLACK) {
-    hardware::IrCal cal = hardware::irGetCal();
-    cal.left_black = avgRaw(hardware::irReadLeftRaw, kIrSamples);
-    cal.right_black = avgRaw(hardware::irReadRightRaw, kIrSamples);
-    cal.left_thresh = (cal.left_white + cal.left_black) / 2;
-    cal.right_thresh = (cal.right_white + cal.right_black) / 2;
-    hardware::irSetCal(cal);
-
-    g_state = CAL_IDLE;
-    printIrJson(cal);
-    return;
-  }
-
   if (g_state == CAL_IR_PROFILE_WAIT_CARDBOARD) {
     g_ir_profile_temp.cardboard_left =
         avgRaw(hardware::irReadLeftRaw, kIrSamples);
@@ -488,9 +454,7 @@ void handleCommand(char *cmd_line) {
   if (handleSetCommand(cmd_line, args))
     return;
 
-  if (strcmp(cmd_line, "CAL_IR") == 0) {
-    startIrCal();
-  } else if (strcmp(cmd_line, "CAL_IR_PROFILE") == 0) {
+  if (strcmp(cmd_line, "CAL_IR_PROFILE") == 0) {
     startIrProfile();
   } else if (strcmp(cmd_line, "CAL_COLOR") == 0) {
     startColorCal();
@@ -500,7 +464,7 @@ void handleCommand(char *cmd_line) {
     handleNext();
   } else if (strcmp(cmd_line, "HELP") == 0) {
     Serial.println(
-        "CMD: CAL_IR | CAL_IR_PROFILE | CAL_COLOR | CAL_ULTRA | NEXT | SET_IR | "
+        "CMD: CAL_IR_PROFILE | CAL_COLOR | CAL_ULTRA | NEXT | SET_IR | "
         "SET_COLOR | SET_COLOR_TARGETS | SET_ULTRA");
   } else {
     Serial.println("ERR:UNKNOWN_CMD");
