@@ -11,6 +11,11 @@ the calibration values are computed.
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
 ```
 
+- IR profile logging:
+```bash
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir_profile
+```
+
 - Color sensor:
 ```bash
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor color
@@ -39,6 +44,11 @@ Commands:
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir
 ```
 
+- IR profile logging:
+```bash
+python scripts/calibrate.py --port /dev/ttyACM0 --sensor ir_profile
+```
+
 - Color sensor:
 ```bash
 python scripts/calibrate.py --port /dev/ttyACM0 --sensor color
@@ -60,11 +70,12 @@ What you will see:
   and press Enter.
 - The script writes a single JSON line to:
   - `cal_ir.json`
+  - `cal_ir_profile.json`
   - `cal_color.json`
   - `cal_ultra.json`
 
 Serial commands (manual use):
-- `CAL_IR`, `CAL_COLOR`, `CAL_ULTRA` to start
+- `CAL_IR`, `CAL_IR_PROFILE`, `CAL_COLOR`, `CAL_ULTRA` to start
 - `NEXT` to advance each step
 - `HELP` to list commands
 
@@ -81,6 +92,8 @@ IR sensor:
 - Stores `left_white`, `left_black`, `right_white`, `right_black`.
 - Thresholds are midpoints between white and black.
 - Normalized output maps raw ADC to 0..1000 using white/black bounds.
+- Optional: IR profile logging collects raw readings for
+  cardboard, red, blue, and green surfaces.
 
 Color sensor:
 - Samples `kColorSamples` on a white reference and then a black reference.
@@ -114,7 +127,7 @@ calibration_serial::poll();
 Command handling and prompts:
 ```cpp
 // src/core/system/calibration_serial.cpp
-// Commands: CAL_IR, CAL_COLOR, CAL_ULTRA, NEXT
+// Commands: CAL_IR, CAL_IR_PROFILE, CAL_COLOR, CAL_ULTRA, NEXT
 ```
 
 Load calibration values from JSON (host -> Arduino):

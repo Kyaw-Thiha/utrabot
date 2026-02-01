@@ -13,14 +13,22 @@ def read_line(ser):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", required=True)
-    parser.add_argument("--sensor", required=True, choices=["ir", "color", "ultra"])
+    parser.add_argument(
+        "--sensor", required=True, choices=["ir", "ir_profile", "color", "ultra"]
+    )
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
-    cmd_map = {"ir": "CAL_IR", "color": "CAL_COLOR", "ultra": "CAL_ULTRA"}
+    cmd_map = {
+        "ir": "CAL_IR",
+        "ir_profile": "CAL_IR_PROFILE",
+        "color": "CAL_COLOR",
+        "ultra": "CAL_ULTRA",
+    }
     out_map = {
         "ir": "cal_ir.json",
+        "ir_profile": "cal_ir_profile.json",
         "color": "cal_color.json",
         "ultra": "cal_ultra.json",
     }
@@ -36,7 +44,12 @@ def main():
         if not line:
             continue
 
-        if line.startswith("IR:READY") or line.startswith("COLOR:READY") or line.startswith("ULTRA:READY"):
+        if (
+            line.startswith("IR:READY")
+            or line.startswith("IRP:READY")
+            or line.startswith("COLOR:READY")
+            or line.startswith("ULTRA:READY")
+        ):
             print(line)
             input("Position sensor and press Enter to continue...")
             ser.write(b"NEXT\n")
